@@ -13,6 +13,7 @@
     "@mui/icons-material": "^5.14.1",
     "@mui/material": "^5.14.2",
     "@mui/x-data-grid": "^6.11.0",
+    "mongoose": "^7.4.2",
     "next": "13.4.12",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -21,8 +22,11 @@
   "devDependencies": {
     "@types/node": "20.4.5",
     "@types/react": "18.2.18",
-    "eslint": "8.46.0",
+    "@typescript-eslint/eslint-plugin": "^6.3.0",
+    "@typescript-eslint/parser": "^6.3.0",
+    "eslint": "^8.46.0",
     "eslint-config-next": "13.4.12",
+    "prettier": "^3.0.1",
     "typescript": "5.1.6"
   }
 }
