@@ -4,23 +4,35 @@ import type { AppProps } from "next/app";
 import { lightTheme } from "../themes";
 import { CssBaseline } from "@mui/material";
 import { SWRConfig } from "swr";
-import { UiProvider } from "../context";
+import { CartProvider, UiProvider } from "../context";
+import { useState, useEffect } from "react";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const [showChild, setShowChild] = useState(false);
+  useEffect(() => {
+      setShowChild(true);
+  }, []);
+  if (!showChild) {
+      return <></>;
+  }
+
   return (
-    <SWRConfig
-      value={{
-        fetcher: (resource, init) =>
-          fetch(resource, init).then((res) => res.json()),
-      }}
-    >
-      <UiProvider>
-        <ThemeProvider theme={lightTheme}>
-          <CssBaseline />
-          <Component {...pageProps} />
-        </ThemeProvider>
-      </UiProvider>
-    </SWRConfig>
+      <SWRConfig
+          value={{
+              //refreshInterval: 3000, // 
+              fetcher: (resource, init) =>
+                  fetch(resource, init).then((res) => res.json()),
+          }}
+      >
+          <CartProvider>
+              <UiProvider>
+                  <ThemeProvider theme={lightTheme}>
+                      <CssBaseline />
+                      <Component {...pageProps} />
+                  </ThemeProvider>
+              </UiProvider>
+          </CartProvider>
+      </SWRConfig>
   );
 }
 

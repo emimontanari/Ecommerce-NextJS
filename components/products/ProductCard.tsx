@@ -8,6 +8,7 @@ import {
   Box,
   Typography,
   Link,
+  Chip,
 } from "@mui/material";
 
 import { IProduct } from "../../interfaces";
@@ -35,8 +36,21 @@ export const ProductCard: FC<Props> = ({ product }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <Card>
-        <NextLink href={`/product/${product.slug}`}passHref prefetch={false}>
+        <NextLink href={`/product/${product.slug}`} passHref prefetch={false}>
           <CardActionArea>
+            {product.inStock === 0 && (
+              <Chip
+                color="primary"
+                label="No hay stock"
+                sx={{
+                  position: "absolute",
+                  zIndex: 99,
+                  opacity: 0.8,
+                  top: 10,
+                  left: 10,
+                }}
+              />
+            )}
             <CardMedia
               component="img"
               className="fadeIn"
