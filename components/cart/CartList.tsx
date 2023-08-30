@@ -10,7 +10,6 @@ import {
   Typography,
 } from "@mui/material";
 
-import { initialData } from "../../database/products";
 import { ItemCounter } from "../ui";
 import { CartContext } from "../../context";
 import { ICartProduct } from "../../interfaces";
@@ -20,7 +19,8 @@ interface Props {
 }
 
 export const CartList: FC<Props> = ({ editable = false }) => {
-  const { cart, updateCartQuantity, removeCartProduct } = useContext(CartContext);
+  const { cart, updateCartQuantity, removeCartProduct } =
+    useContext(CartContext);
 
   const onNewCartQuantityValue = (
     product: ICartProduct,
@@ -62,7 +62,9 @@ export const CartList: FC<Props> = ({ editable = false }) => {
                 <ItemCounter
                   currentValue={product.quantity}
                   maxValue={10}
-                  updatedQuantity={(value) => onNewCartQuantityValue(product, value)}
+                  updatedQuantity={(value) =>
+                    onNewCartQuantityValue(product, value)
+                  }
                 />
               ) : (
                 <Typography variant="h5">
@@ -82,7 +84,11 @@ export const CartList: FC<Props> = ({ editable = false }) => {
             <Typography variant="subtitle1">{`$${product.price}`}</Typography>
 
             {editable && (
-              <Button variant="text" color="secondary" onClick={() => removeCartProduct(product)}>
+              <Button
+                variant="text"
+                color="secondary"
+                onClick={() => removeCartProduct(product)}
+              >
                 Remover
               </Button>
             )}
