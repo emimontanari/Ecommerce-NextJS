@@ -20,6 +20,8 @@ export const isValidToken = (token: string): Promise<string> => {
         throw new Error('No JWT_SECRET defined')
     }
 
+    if(token.length <= 10) return Promise.reject("JWT invalido")
+
     return new Promise((resolve, reject) => {
         try {
 

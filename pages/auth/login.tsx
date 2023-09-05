@@ -45,7 +45,9 @@ const LoginPage = () => {
       return;
     }
 
-    router.replace("/");
+    const destination = router.query.p?.toString() || "/";
+
+    router.replace(destination);
   };
 
   return (
@@ -82,6 +84,10 @@ const LoginPage = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
+                label="Contraseña"
+                type="password"
+                variant="filled"
+                fullWidth
                 {...register("password", {
                   required: "La contraseña es requerida",
                   minLength: {
@@ -89,10 +95,6 @@ const LoginPage = () => {
                     message: "La contraseña debe tener al menos 6 caracteres",
                   },
                 })}
-                label="Contraseña"
-                type="password"
-                variant="filled"
-                fullWidth
                 error={!!errors.password}
                 helperText={errors.password?.message}
               />
@@ -111,7 +113,7 @@ const LoginPage = () => {
             </Grid>
 
             <Grid item xs={12} display="flex" justifyContent="end">
-              <NextLink href="/auth/register" passHref>
+              <NextLink href={router.query.p ? `/auth/register?p=${router.query.p} `: "/auth/register"} passHref>
                 ¿No tienes cuenta?
               </NextLink>
             </Grid>

@@ -1,127 +1,156 @@
-import {
-  FC,
-  PropsWithChildren,
-  use,
-  useEffect,
-  useReducer,
-  useState,
-} from "react";
-import { CartContext, cartReducer } from "./";
-import { ICartProduct } from "../../interfaces";
-import Cookies from "js-cookie";
+import { FC, PropsWithChildren, useEffect, useReducer } from 'react';
+import Cookie from 'js-cookie';
+
+
+import { ICartProduct } from '../../interfaces';
+import { CartContext, cartReducer } from './';
 
 export interface CartState {
-  cart: ICartProduct[];
-  numberOfItems: number;
-  subTotal: number;
-  tax: number;
-  total: number;
+    isLoaded: boolean;
+    cart: ICartProduct[];
+    numberOfItems: number;
+    subTotal: number;
+    tax: number;
+    total: number;
+
+    shippingAddress?: ShippingAddress;
 }
-export const CART_INITIAL_STATE: CartState = {
-  cart: Cookies.get("cart") ? JSON.parse(Cookies.get("cart")!) : [],
-  numberOfItems: 0,
-  subTotal: 0,
-  tax: 0,
-  total: 0
-};
+
+export interface ShippingAddress {
+    firstName: string;
+    lastName : string;
+    address  : string;
+    address2?: string;
+    zip      : string;
+    city     : string;
+    country  : string;
+    phone    : string;
+}
 
 
-export const CartProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, CART_INITIAL_STATE);
+const CART_INITIAL_STATE: CartState = {
+    isLoaded: false,
+    cart: [],
+    numberOfItems: 0,
+    subTotal: 0,
+    tax: 0,
+    total: 0,
+    shippingAddress: undefined
+}
 
-  const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    if (!isMounted) {
-      const cart = JSON.parse(Cookies.get("cart") ?? "[]");
-      dispatch({
-        type: "[Cart] - LoadCart from cookies | storage",
-        payload: cart,
-      });
-      setIsMounted(true);
-    }
-  }, [isMounted]);
+export const CartProvider:FC<PropsWithChildren> = ({ children }) => {
 
-  useEffect(() => {
-    if (isMounted) Cookies.set("cart", JSON.stringify(state.cart));
-  }, [state.cart, isMounted]);
+    const [state, dispatch] = useReducer( cartReducer , CART_INITIAL_STATE );
 
-  useEffect(() => {
-    const numberOfItems = state.cart.reduce(
-      (prev, current) => current.quantity + prev,
-      0
-    );
+    // Efecto
+    useEffect(() => {
+        try {
+            const cookieProducts = Cookie.get('cart') ? JSON.parse( Cookie.get('cart')! ): []
+            dispatch({ type: '[Cart] - LoadCart from cookies | storage', payload: cookieProducts });
+        } catch (error) {
+            dispatch({ type: '[Cart] - LoadCart from cookies | storage', payload: [] });
+        }
+    }, []);
 
-    const subTotal = state.cart.reduce( (prev, current) => current.price * current.quantity + prev, 0)
-    const taxRate = Number(process.env.NEXT_PUBLIC_TAX_RATE || 0)
 
-    const orderSummary = {
-      numberOfItems,
-      subTotal,
-      tax: subTotal * taxRate,
-      total: subTotal * (1 + taxRate)
-    };
+    useEffect(() => {
 
-    dispatch({
-      type: "[Cart] - Update order summary",
-      payload: orderSummary,
-    });
+        if ( Cookie.get('firstName')){
+            const shippingAddress = {
+                firstName : Cookie.get('firstName') || '',
+                lastName  : Cookie.get('lastName') || '',
+                address   : Cookie.get('address') || '',
+                address2  : Cookie.get('address2') || '',
+                zip       : Cookie.get('zip') || '',
+                city      : Cookie.get('city') || '',
+                country   : Cookie.get('country') || '',
+                phone     : Cookie.get('phone') || '',
+            }
+            
+            dispatch({ type:'[Cart] - LoadAddress from Cookies', payload: shippingAddress })
+        }
+    }, [])
     
-  }, [state.cart]);
 
-  const addProductToCart = (product: ICartProduct) => {
-    const productInCart = state.cart.some((p) => p._id === product._id);
 
-    if (!productInCart)
-      return dispatch({
-        type: "[Cart] - Update products in cart",
-        payload: [...state.cart, product],
-      });
+    
+    useEffect(() => {
+      Cookie.set('cart', JSON.stringify( state.cart ));
+    }, [state.cart]);
 
-    const productInCartButDifferentSize = state.cart.some(
-      (p) => p._id === product._id && p.size === product.size
-    );
 
-    if (!productInCartButDifferentSize)
-      return dispatch({
-        type: "[Cart] - Update products in cart",
-        payload: [...state.cart, product],
-      });
+    useEffect(() => {
+        
+        const numberOfItems = state.cart.reduce( ( prev, current ) => current.quantity + prev , 0 );
+        const subTotal = state.cart.reduce( ( prev, current ) => (current.price * current.quantity) + prev, 0 );
+        const taxRate =  Number(process.env.NEXT_PUBLIC_TAX_RATE || 0);
+    
+        const orderSummary = {
+            numberOfItems,
+            subTotal,
+            tax: subTotal * taxRate,
+            total: subTotal * ( taxRate + 1 )
+        }
 
-    const updateProducts = state.cart.map((p) => {
-      if (p._id !== product._id) return p;
+        dispatch({ type: '[Cart] - Update order summary', payload: orderSummary });
+    }, [state.cart]);
 
-      if (p.size !== product.size) return p;
 
-      p.quantity += product.quantity;
 
-      return p;
-    });
+    const addProductToCart = ( product: ICartProduct ) => {
+        const productInCart = state.cart.some( p => p._id === product._id );
+        if ( !productInCart ) return dispatch({ type: '[Cart] - Update products in cart', payload: [...state.cart, product ] })
 
-    dispatch({
-      type: "[Cart] - Update products in cart",
-      payload: updateProducts,
-    });
-  };
+        const productInCartButDifferentSize = state.cart.some( p => p._id === product._id && p.size === product.size );
+        if ( !productInCartButDifferentSize ) return dispatch({ type: '[Cart] - Update products in cart', payload: [...state.cart, product ] })
 
-  const updateCartQuantity = (product: ICartProduct) => {
-    dispatch({ type: "[Cart] - Change cart quantity", payload: product });
-  };
+        // Acumular
+        const updatedProducts = state.cart.map( p => {
+            if ( p._id !== product._id ) return p;
+            if ( p.size !== product.size ) return p;
 
-  const removeCartProduct = (product: ICartProduct) => {
-    dispatch({ type: "[Cart] - Remove product in cart", payload: product });
-  };
+            // Actualizar la cantidad
+            p.quantity += product.quantity;
+            return p;
+        });
 
-  return (
-    <CartContext.Provider
-      value={{
-        ...state,
-        addProductToCart,
-        updateCartQuantity,
-        removeCartProduct,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
-  );
+        dispatch({ type: '[Cart] - Update products in cart', payload: updatedProducts });
+
+    }
+
+    const updateCartQuantity = ( product: ICartProduct ) => {
+        dispatch({ type: '[Cart] - Change cart quantity', payload: product });
+    }
+
+    const removeCartProduct = ( product: ICartProduct ) => {
+        dispatch({ type: '[Cart] - Remove product in cart', payload: product });
+    }
+
+    const updateAddress = ( address: ShippingAddress ) => {
+        Cookie.set('firstName',address.firstName);
+        Cookie.set('lastName',address.lastName);
+        Cookie.set('address',address.address);
+        Cookie.set('address2',address.address2 || '');
+        Cookie.set('zip',address.zip);
+        Cookie.set('city',address.city);
+        Cookie.set('country',address.country);
+        Cookie.set('phone',address.phone);
+
+        dispatch({ type: '[Cart] - Update Address', payload: address });
+    }
+
+
+    return (
+        <CartContext.Provider value={{
+            ...state,
+            // Methods
+            addProductToCart,
+            removeCartProduct,
+            updateCartQuantity,
+            updateAddress,
+        }}>
+            { children }
+        </CartContext.Provider>
+    )
 };
