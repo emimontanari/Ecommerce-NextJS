@@ -7,6 +7,7 @@ export interface IOrder {
     orderItems: IOrderItem[];
     shippingAddress: ShippingAddress;
     paymentResult?: string;
+
     numberOfItems: number;
     subTotal     : number;
     tax          : number;
@@ -15,10 +16,12 @@ export interface IOrder {
     isPaid  : boolean;
     paidAt? : string;
 
-
     transactionId?: string;
-}
 
+
+    createdAt?: string;
+    updatedAt?: string;
+}
 
 export interface IOrderItem {
     _id      : string;

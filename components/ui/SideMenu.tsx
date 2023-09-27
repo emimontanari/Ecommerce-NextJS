@@ -17,6 +17,7 @@ import {
   AdminPanelSettings,
   CategoryOutlined,
   ConfirmationNumberOutlined,
+  DashboardOutlined,
   EscalatorWarningOutlined,
   FemaleOutlined,
   LoginOutlined,
@@ -32,7 +33,7 @@ export const SideMenu = () => {
   const router = useRouter();
   const { isMenuOpen, toggleSideMenu } = useContext(UiContext);
 
-  const { user, isLoggedIn,logout } = useContext(AuthContext);
+  const { user, isLoggedIn, logout } = useContext(AuthContext);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -81,7 +82,7 @@ export const SideMenu = () => {
                 <ListItemText primary={"Perfil"} />
               </ListItemButton>
 
-              <ListItemButton onClick={() => navigateTo("/orders/history")} >
+              <ListItemButton onClick={() => navigateTo("/orders/history")}>
                 <ListItemIcon>
                   <ConfirmationNumberOutlined />
                 </ListItemIcon>
@@ -128,7 +129,7 @@ export const SideMenu = () => {
               <ListItemText primary={"Salir"} />
             </ListItemButton>
           ) : (
-            <ListItemButton 
+            <ListItemButton
               onClick={() => navigateTo(`/auth/login?p=${router.asPath}`)}
             >
               <ListItemIcon>
@@ -144,20 +145,20 @@ export const SideMenu = () => {
               <Divider />
               <ListSubheader>Admin Panel</ListSubheader>
 
-              <ListItemButton>
+              <ListItemButton onClick={() => navigateTo('/admin/')}>
                 <ListItemIcon>
-                  <CategoryOutlined />
+                  <DashboardOutlined />
                 </ListItemIcon>
-                <ListItemText primary={"Productos"} />
+                <ListItemText primary={"Dashboard"} />
               </ListItemButton>
-              <ListItemButton>
+              <ListItemButton onClick={() => navigateTo('/admin/orders')}>
                 <ListItemIcon>
                   <ConfirmationNumberOutlined />
                 </ListItemIcon>
                 <ListItemText primary={"Ordenes"} />
               </ListItemButton>
 
-              <ListItemButton>
+              <ListItemButton onClick={() => navigateTo('/admin/users')}>
                 <ListItemIcon>
                   <AdminPanelSettings />
                 </ListItemIcon>

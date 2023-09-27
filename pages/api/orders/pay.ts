@@ -25,12 +25,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
 
 const getPaypalBearerToken = async():Promise<string|null> => {
     
-    const PAYPAL_CLIENT = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+    const PAYPAL_CLIENT = process.env.NEXT_PUBLIC_PAYPAL_CLIENT;
     const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
 
     const base64Token = Buffer.from(`${ PAYPAL_CLIENT }:${ PAYPAL_SECRET }`, 'utf-8').toString('base64');
     const body = new URLSearchParams('grant_type=client_credentials');
-
 
     try {
         
