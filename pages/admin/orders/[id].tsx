@@ -33,7 +33,7 @@ const OrderPage: NextPage<Props> = ({ order }) => {
       subTitle={`Orden: ${order._id}`}
       icon={<ShoppingBagIcon />}
     >
-      <Grid container className="fadeIn">
+      <Grid container className="fadeIn" sx={{mt:5}}>
         <Grid item xs={12} sm={7}>
           <CartList products={order.orderItems} />
         </Grid>
