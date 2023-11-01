@@ -17,8 +17,8 @@ MONGO_URL=mongodb://localhost:27017/teslodb
 
 * Reconstruir los módulos de node y levantar Next
 ```
-yarn install
-yarn dev
+npm install
+npm start
 ```
 
 
